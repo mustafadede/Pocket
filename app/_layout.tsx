@@ -12,7 +12,7 @@ export default function RootLayout() {
   return (
     <KeyboardProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{}}>
+        <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen
             name="createday"
@@ -20,6 +20,16 @@ export default function RootLayout() {
               title: "Gününü düzenle",
               presentation: "modal",
               animationMatchesGesture: true,
+              animation: "slide_from_right",
+            }}
+          />
+          <Stack.Screen
+            name="viewday"
+            options={{
+              title: "",
+              presentation: "modal",
+              animationMatchesGesture: true,
+              animation: "slide_from_right",
             }}
           />
         </Stack>

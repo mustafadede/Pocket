@@ -99,7 +99,6 @@ export default function HomeScreen() {
                 selectedColor: "#FF8A00",
               },
             }}
-            defaul
             enableSwipeMonths
             theme={{
               arrowColor: "#FF8A00",
@@ -175,7 +174,10 @@ export default function HomeScreen() {
                 borderRadius: 12,
               }}
               onPress={() => {
-                router.push("/createday");
+                if (today === selectedDate) {
+                  router.push("/createday");
+                }
+                router.push("/viewday");
               }}
             >
               <Text
@@ -186,7 +188,7 @@ export default function HomeScreen() {
                   fontWeight: "600",
                 }}
               >
-                Düzenle
+                {today === selectedDate ? `Düzenle` : "Görüntüle"}
               </Text>
             </TouchableOpacity>
           </Animated.View>

@@ -1,20 +1,35 @@
+import Octicons from "@expo/vector-icons/Octicons";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   useColorScheme,
+  View,
 } from "react-native";
-import Animated, { FadeIn, FadeInUp, Layout } from "react-native-reanimated";
+import Animated, { FadeIn, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Createday = () => {
   const colorScheme = useColorScheme();
   const [tasks, setTasks] = useState<string[]>([]);
   const [input, setInput] = useState("");
+
+  const [activities, setActivities] = useState([
+    { label: "Yürüyüş", done: false },
+    { label: "Dehidrasyon", done: false },
+    { label: "Push up", done: false },
+  ]);
+
+  const toggleActivity = (index: number) => {
+    setActivities((prev) =>
+      prev.map((activity, i) =>
+        i === index ? { ...activity, done: !activity.done } : activity
+      )
+    );
+  };
 
   const addTask = () => {
     if (input.trim().length === 0) return;
@@ -27,6 +42,7 @@ const Createday = () => {
       style={{
         flex: 1,
         backgroundColor: colorScheme === "dark" ? "#0D0D0D" : "#F8F9FB",
+        paddingHorizontal: 20,
       }}
     >
       <KeyboardAvoidingView
@@ -47,59 +63,96 @@ const Createday = () => {
             shadowOffset: { width: 0, height: 2 },
             shadowRadius: 6,
             elevation: 4,
+            minHeight: 360,
             marginBottom: 14,
           }}
         >
           <TextInput
             value={input}
             multiline
-            numberOfLines={10}
+            numberOfLines={20}
             onChangeText={setInput}
-            placeholder="Görev ekle..."
+            placeholder="Bugün neler yaptın ?"
             placeholderTextColor={colorScheme === "dark" ? "#777" : "#A5A5A5"}
             style={{
               fontSize: 16,
+              maxWidth: "100%",
               color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
             }}
           />
         </Animated.View>
-
-        {/* Görev Listesi */}
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingBottom: 40 }}
-          keyboardShouldPersistTaps="handled"
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
         >
-          {tasks.map((task, index) => (
-            <Animated.View
-              key={task + index}
-              entering={FadeInUp.duration(300)}
-              layout={Layout}
+          <Text
+            style={{
+              fontSize: 24,
+              color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
+            }}
+          >
+            Aktiviteler
+          </Text>
+          <TouchableOpacity
+            onPress={() => {
+              console.log("aktiviteler");
+            }}
+          >
+            <Octicons name="pencil" size={18} color="orange" />
+          </TouchableOpacity>
+        </View>
+        <Animated.View
+          layout={Layout}
+          style={{
+            marginTop: 20,
+            backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+            borderRadius: 12,
+            padding: 14,
+            gap: 12,
+          }}
+        >
+          {activities.map((item, index) => (
+            <TouchableOpacity
+              key={index}
+              onPress={() => toggleActivity(index)}
               style={{
-                backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
-                padding: 16,
-                borderRadius: 14,
-                marginBottom: 12,
-                shadowColor: "#000",
-                shadowOpacity: 0.05,
-                shadowOffset: { width: 0, height: 2 },
-                shadowRadius: 4,
-                elevation: 3,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingVertical: 10,
               }}
             >
               <Text
                 style={{
                   fontSize: 16,
-                  color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
+                  color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
+                  textDecorationStyle: "dashed",
                 }}
               >
-                • {task}
+                {item.label}
               </Text>
-            </Animated.View>
+
+              <Animated.View
+                style={{
+                  width: 22,
+                  height: 22,
+                  borderRadius: 6,
+                  borderWidth: 2,
+                  borderColor: colorScheme === "dark" ? "#FF9A1A" : "#FF8A00",
+                  backgroundColor: item.done
+                    ? colorScheme === "dark"
+                      ? "#FF9A1A"
+                      : "#FF8A00"
+                    : "transparent",
+                }}
+              />
+            </TouchableOpacity>
           ))}
-        </ScrollView>
+        </Animated.View>
       </KeyboardAvoidingView>
-      {/* Görevi Ekle Butonu */}
       <TouchableOpacity
         onPress={addTask}
         style={{
@@ -117,7 +170,7 @@ const Createday = () => {
             color: "#FFFFFF",
           }}
         >
-          Görevi Ekle
+          Gününü gir
         </Text>
       </TouchableOpacity>
     </SafeAreaView>
