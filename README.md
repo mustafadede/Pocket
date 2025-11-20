@@ -2,7 +2,7 @@
 
 # Agenda
 
-<img width="1226" height="603" alt="Frame 1 (2)" src="https://github.com/user-attachments/assets/c8b72ef2-1fd7-489c-8977-0d974b5bea20" />
+<img width="1226" height="603" alt="Frame 1 (1)" src="https://github.com/user-attachments/assets/ddb58a3c-5715-4382-ab71-e51db4c02643" />
 
 This is an Agenda/Planner local first mobile app. Currently work in progress.
 
