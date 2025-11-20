@@ -1,4 +1,4 @@
-import { Ionicons } from "@expo/vector-icons";
+import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   StyleSheet,
@@ -90,7 +90,7 @@ export default function SettingsScreen() {
         </View>
       </View>
 
-      <Text style={styles.sectionTitle}>Hesap</Text>
+      {/* <Text style={styles.sectionTitle}>Hesap</Text>
 
       <View style={styles.card}>
         <TouchableOpacity style={styles.row}>
@@ -105,6 +105,18 @@ export default function SettingsScreen() {
           <View style={styles.left}>
             <Ionicons name="lock-closed-outline" size={22} color="#ff6e00" />
             <Text style={styles.label}>Şifre Değiştir</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color="#999" />
+        </TouchableOpacity>
+      </View> */}
+
+      <Text style={styles.sectionTitle}>Sayfalar</Text>
+
+      <View style={styles.card}>
+        <TouchableOpacity style={styles.row}>
+          <View style={styles.left}>
+            <FontAwesome5 name="running" size={22} color="#ff6e00" />
+            <Text style={styles.label}>Aktiviteler</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
