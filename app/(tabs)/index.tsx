@@ -1,98 +1,197 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  SafeAreaView,
+  Text,
+  TouchableOpacity,
+  useColorScheme,
+  View,
+} from "react-native";
+import { Calendar, LocaleConfig } from "react-native-calendars";
+import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+LocaleConfig.locales["tr"] = {
+  monthNames: [
+    "Ocak",
+    "Şubat",
+    "Mart",
+    "Nisan",
+    "Mayıs",
+    "Haziran",
+    "Temmuz",
+    "Ağustos",
+    "Eylül",
+    "Ekim",
+    "Kasım",
+    "Aralık",
+  ],
+  monthNamesShort: [
+    "Oca",
+    "Şub",
+    "Mar",
+    "Nis",
+    "May",
+    "Haz",
+    "Tem",
+    "Ağu",
+    "Eyl",
+    "Eki",
+    "Kas",
+    "Ara",
+  ],
+  dayNames: [
+    "Pazar",
+    "Pazartesi",
+    "Salı",
+    "Çarşamba",
+    "Perşembe",
+    "Cuma",
+    "Cumartesi",
+  ],
+  dayNamesShort: ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cts"],
+};
+
+LocaleConfig.defaultLocale = "tr";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const today = new Date().toISOString().split("T")[0];
+  const [selectedDate, setSelectedDate] = useState(today);
+  const colorScheme = useColorScheme();
+  const date = new Date().toLocaleDateString();
+  const router = useRouter();
+  console.log(date, selectedDate?.replaceAll("-", "/"));
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  return (
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: "transparent",
+      }}
+    >
+      <View
+        style={{
+          paddingHorizontal: 20,
+          paddingTop: 10,
+        }}
+      >
+        {/* Calendar */}
+        <Animated.View
+          entering={FadeIn.duration(500)}
+          style={{
+            backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+            borderRadius: 16,
+            padding: 10,
+            shadowColor: "#000",
+            shadowOpacity: 0.08,
+            shadowOffset: { width: 0, height: 2 },
+            shadowRadius: 6,
+            elevation: 4,
+          }}
+        >
+          <Calendar
+            style={{
+              borderRadius: 16,
+            }}
+            markedDates={{
+              [selectedDate]: {
+                selected: true,
+                disableTouchEvent: true,
+                selectedColor: "#FF8A00",
+              },
+            }}
+            defaul
+            enableSwipeMonths
+            theme={{
+              arrowColor: "#FF8A00",
+              backgroundColor: "transparent",
+              calendarBackground: "transparent",
+              textSectionTitleColor: colorScheme === "dark" ? "white" : "white",
+              monthTextColor: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
+              todayTextColor: "orange",
+              dayTextColor: colorScheme === "dark" ? "white" : "#1A1A1A",
+              selectedDayBackgroundColor: "#FF8A00",
+              agendaDayTextColor: "white",
+              selectedDayTextColor: "#FFFFFF",
+            }}
+            onDayPress={(day) => {
+              setSelectedDate(day.dateString);
+            }}
+          />
+        </Animated.View>
+
+        {/* Selected Date Display */}
+        {selectedDate && (
+          <Animated.View
+            key={selectedDate}
+            entering={FadeIn.duration(900)}
+            exiting={FadeOut.duration(300)}
+            layout={Layout}
+            style={{
+              marginTop: 25,
+              padding: 20,
+              backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+              borderRadius: 16,
+              shadowColor: "#000",
+              shadowOpacity: 0.06,
+              shadowOffset: { width: 0, height: 2 },
+              shadowRadius: 4,
+              elevation: 3,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 20,
+                fontWeight: "600",
+                color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
+                textAlign: "center",
+                marginBottom: 10,
+              }}
+            >
+              Seçilen Gün
+            </Text>
+            <Text
+              style={{
+                fontSize: 18,
+                textAlign: "center",
+                color: colorScheme === "dark" ? "#FFB65E" : "#FF8A00",
+              }}
+            >
+              {(() => {
+                const dateObj = new Date(selectedDate);
+                const options: Intl.DateTimeFormatOptions = {
+                  day: "2-digit",
+                  month: "long",
+                  year: "numeric",
+                };
+                return dateObj.toLocaleDateString("tr-TR", options);
+              })()}
+            </Text>
+
+            <TouchableOpacity
+              style={{
+                marginTop: 20,
+                backgroundColor: colorScheme === "dark" ? "#FF9A1A" : "#FF8A00",
+                paddingVertical: 12,
+                borderRadius: 12,
+              }}
+              onPress={() => {
+                router.push("/createday");
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "#FFFFFF",
+                  fontSize: 16,
+                  fontWeight: "600",
+                }}
+              >
+                Düzenle
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+      </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
