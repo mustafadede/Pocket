@@ -1,4 +1,6 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
+import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -14,8 +16,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const Createday = () => {
   const colorScheme = useColorScheme();
+  const navigation = useNavigation();
   const [tasks, setTasks] = useState<string[]>([]);
   const [input, setInput] = useState("");
+  const [ratingStep, setRatingStep] = useState(false);
 
   const [activities, setActivities] = useState([
     { label: "Yürüyüş", done: false },
@@ -34,14 +38,14 @@ const Createday = () => {
   const addTask = () => {
     if (input.trim().length === 0) return;
     setTasks([...tasks, input]);
-    setInput("");
+    setRatingStep(true);
   };
 
   return (
     <SafeAreaView
       style={{
         flex: 1,
-        backgroundColor: colorScheme === "dark" ? "#0D0D0D" : "#F8F9FB",
+        backgroundColor: "transparent",
         paddingHorizontal: 20,
       }}
     >
@@ -67,19 +71,33 @@ const Createday = () => {
             marginBottom: 14,
           }}
         >
-          <TextInput
-            value={input}
-            multiline
-            numberOfLines={20}
-            onChangeText={setInput}
-            placeholder="Bugün neler yaptın ?"
-            placeholderTextColor={colorScheme === "dark" ? "#777" : "#A5A5A5"}
-            style={{
-              fontSize: 16,
-              maxWidth: "100%",
-              color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
-            }}
-          />
+          {!ratingStep ? (
+            <TextInput
+              value={input}
+              multiline
+              numberOfLines={20}
+              onChangeText={setInput}
+              placeholder="Bugün neler yaptın ?"
+              placeholderTextColor={colorScheme === "dark" ? "#777" : "#A5A5A5"}
+              style={{
+                fontSize: 16,
+                maxWidth: "100%",
+                color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
+              }}
+            />
+          ) : (
+            <Text
+              style={{
+                paddingTop: 10,
+                paddingLeft: 4,
+                fontSize: 16,
+                maxWidth: "100%",
+                color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
+              }}
+            >
+              {input}
+            </Text>
+          )}
         </Animated.View>
         <View
           style={{
@@ -96,83 +114,193 @@ const Createday = () => {
           >
             Aktiviteler
           </Text>
-          <TouchableOpacity
-            onPress={() => {
-              console.log("aktiviteler");
-            }}
-          >
-            <Octicons name="pencil" size={18} color="orange" />
-          </TouchableOpacity>
-        </View>
-        <Animated.View
-          layout={Layout}
-          style={{
-            marginTop: 20,
-            backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
-            borderRadius: 12,
-            padding: 14,
-            gap: 12,
-          }}
-        >
-          {activities.map((item, index) => (
+          {!ratingStep && (
             <TouchableOpacity
-              key={index}
-              onPress={() => toggleActivity(index)}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                paddingVertical: 10,
+              onPress={() => {
+                console.log("aktiviteler");
               }}
             >
-              <Text
+              <Octicons name="pencil" size={18} color="#ff6e00" />
+            </TouchableOpacity>
+          )}
+        </View>
+        {!ratingStep && (
+          <Animated.View
+            layout={Layout}
+            style={{
+              marginTop: 20,
+              backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+              borderRadius: 12,
+              padding: 14,
+              gap: 12,
+            }}
+          >
+            {activities.map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => toggleActivity(index)}
                 style={{
-                  fontSize: 16,
-                  color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
-                  textDecorationStyle: "dashed",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingVertical: 10,
                 }}
               >
-                {item.label}
-              </Text>
+                <Text
+                  style={{
+                    fontSize: 16,
+                    color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
+                    textDecorationStyle: "dashed",
+                  }}
+                >
+                  {item.label}
+                </Text>
 
-              <Animated.View
+                <Animated.View
+                  style={{
+                    width: 22,
+                    height: 22,
+                    borderRadius: 6,
+                    borderWidth: 2,
+                    borderColor: "#ff6e00",
+                    backgroundColor: item.done ? "#ff6e00" : "transparent",
+                  }}
+                />
+              </TouchableOpacity>
+            ))}
+          </Animated.View>
+        )}
+        {ratingStep && (
+          <View
+            style={{
+              width: "100%",
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "center",
+              paddingTop: 20,
+            }}
+          >
+            {activities.map((item, index) => (
+              <View
+                key={index}
                 style={{
-                  width: 22,
-                  height: 22,
-                  borderRadius: 6,
-                  borderWidth: 2,
-                  borderColor: colorScheme === "dark" ? "#FF9A1A" : "#FF8A00",
+                  alignSelf: "flex-start",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginRight: 4,
+                  paddingVertical: 6,
+                  paddingHorizontal: 12,
+                  borderRadius: 20,
                   backgroundColor: item.done
                     ? colorScheme === "dark"
-                      ? "#FF9A1A"
+                      ? "#333"
+                      : "#EFEFEF"
+                    : colorScheme === "dark"
+                      ? "#1A1A1A"
+                      : "#FFFFFF",
+                  borderWidth: 1,
+                  borderColor: item.done
+                    ? colorScheme === "dark"
+                      ? "#ff6e00"
                       : "#FF8A00"
-                    : "transparent",
+                    : colorScheme === "dark"
+                      ? "#444"
+                      : "#DDD",
                 }}
-              />
-            </TouchableOpacity>
-          ))}
-        </Animated.View>
+              >
+                <Text
+                  style={{
+                    fontSize: 14,
+                    fontWeight: "500",
+                    color: item.done
+                      ? colorScheme === "dark"
+                        ? "#ff6e00"
+                        : "#FF8A00"
+                      : colorScheme === "dark"
+                        ? "#fff"
+                        : "#1A1A1A",
+                  }}
+                >
+                  {item.label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        )}
       </KeyboardAvoidingView>
-      <TouchableOpacity
-        onPress={addTask}
-        style={{
-          backgroundColor: colorScheme === "dark" ? "#FF9A1A" : "#FF8A00",
-          paddingVertical: 12,
-          borderRadius: 12,
-          marginBottom: 20,
-        }}
-      >
-        <Text
+      {!ratingStep ? (
+        <TouchableOpacity
+          onPress={addTask}
           style={{
-            textAlign: "center",
-            fontSize: 16,
-            fontWeight: "600",
-            color: "#FFFFFF",
+            backgroundColor: "#ff6e00",
+            paddingVertical: 12,
+            borderRadius: 12,
+            marginBottom: 20,
           }}
         >
-          Gününü gir
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={{
+              textAlign: "center",
+              fontSize: 16,
+              fontWeight: "600",
+              color: "#FFFFFF",
+            }}
+          >
+            Gününü gir
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <Animated.View
+          entering={FadeIn.duration(500)}
+          style={{
+            marginBottom: 40,
+            alignItems: "center",
+            backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+            borderRadius: 16,
+            padding: 16,
+            paddingTop: 30,
+            position: "relative",
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => {
+              setRatingStep(!ratingStep);
+            }}
+            style={{
+              position: "absolute",
+              right: 10,
+              top: 10,
+            }}
+          >
+            <Ionicons name="close-outline" size={34} color="#ff6e00" />
+          </TouchableOpacity>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: "600",
+              marginBottom: 12,
+              color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
+            }}
+          >
+            Güne puanın nedir?
+          </Text>
+          <View style={{ flexDirection: "row", gap: 10, marginBottom: 20 }}>
+            {[1, 2, 3, 4, 5].map((num) => (
+              <TouchableOpacity
+                key={num}
+                onPress={() => navigation.goBack()}
+                style={{
+                  backgroundColor: "#ff6e00",
+                  padding: 12,
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: "#fff", fontWeight: "600" }}>{num}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </Animated.View>
+      )}
     </SafeAreaView>
   );
 };

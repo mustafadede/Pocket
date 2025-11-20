@@ -42,8 +42,8 @@ export default function TabsLayout() {
           drawerLabel: "Ana Sayfa",
           title: "",
           headerTitleAlign: "center",
-          headerTintColor: "orange",
-          drawerActiveTintColor: "orange",
+          headerTintColor: "#ff6e00",
+          drawerActiveTintColor: "#ff6e00",
           headerStyle: {
             backgroundColor: "transparent",
             elevation: 0,

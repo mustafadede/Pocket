@@ -18,18 +18,23 @@ export default function RootLayout() {
             name="createday"
             options={{
               title: "Gününü düzenle",
+              headerBlurEffect: "dark",
+              headerStyle: {
+                backgroundColor: "black",
+              },
               presentation: "modal",
               animationMatchesGesture: true,
               animation: "slide_from_right",
             }}
           />
           <Stack.Screen
-            name="viewday"
+            name="[viewday]"
             options={{
-              title: "",
+              title: "Gün",
               presentation: "modal",
               animationMatchesGesture: true,
               animation: "slide_from_right",
+              headerBackTitle: "Geri dön",
             }}
           />
         </Stack>

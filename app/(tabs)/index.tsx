@@ -96,19 +96,19 @@ export default function HomeScreen() {
               [selectedDate]: {
                 selected: true,
                 disableTouchEvent: true,
-                selectedColor: "#FF8A00",
+                selectedColor: "#ff6e00",
               },
             }}
             enableSwipeMonths
             theme={{
-              arrowColor: "#FF8A00",
+              arrowColor: "#ff6e00",
               backgroundColor: "transparent",
               calendarBackground: "transparent",
               textSectionTitleColor: colorScheme === "dark" ? "white" : "white",
               monthTextColor: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
               todayTextColor: "orange",
               dayTextColor: colorScheme === "dark" ? "white" : "#1A1A1A",
-              selectedDayBackgroundColor: "#FF8A00",
+              selectedDayBackgroundColor: "#ff6e00",
               agendaDayTextColor: "white",
               selectedDayTextColor: "#FFFFFF",
             }}
@@ -118,6 +118,42 @@ export default function HomeScreen() {
           />
         </Animated.View>
 
+        {selectedDate !== today && (
+          <Animated.View
+            entering={FadeIn.duration(500)}
+            style={{
+              borderRadius: 16,
+              shadowOffset: { width: 0, height: 2 },
+              elevation: 0,
+            }}
+          >
+            <TouchableOpacity
+              style={{
+                alignSelf: "center",
+                paddingVertical: 8,
+                marginTop: 15,
+                paddingHorizontal: 16,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: "#ff6e00",
+              }}
+              onPress={() => {
+                setSelectedDate(today);
+              }}
+            >
+              <Text
+                style={{
+                  color: "#ff6e00",
+                  fontWeight: "500",
+                  fontSize: 14,
+                }}
+              >
+                Bugüne Git
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
+
         {/* Selected Date Display */}
         {selectedDate && (
           <Animated.View
@@ -126,7 +162,7 @@ export default function HomeScreen() {
             exiting={FadeOut.duration(300)}
             layout={Layout}
             style={{
-              marginTop: 25,
+              marginTop: 15,
               padding: 20,
               backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
               borderRadius: 16,
@@ -152,7 +188,7 @@ export default function HomeScreen() {
               style={{
                 fontSize: 18,
                 textAlign: "center",
-                color: colorScheme === "dark" ? "#FFB65E" : "#FF8A00",
+                color: "#ff6e00",
               }}
             >
               {(() => {
@@ -165,11 +201,10 @@ export default function HomeScreen() {
                 return dateObj.toLocaleDateString("tr-TR", options);
               })()}
             </Text>
-
             <TouchableOpacity
               style={{
                 marginTop: 20,
-                backgroundColor: colorScheme === "dark" ? "#FF9A1A" : "#FF8A00",
+                backgroundColor: "#ff6e00",
                 paddingVertical: 12,
                 borderRadius: 12,
               }}
@@ -177,7 +212,7 @@ export default function HomeScreen() {
                 if (today === selectedDate) {
                   router.push("/createday");
                 } else {
-                  router.push("/viewday");
+                  router.push("/[viewday]");
                 }
               }}
             >
