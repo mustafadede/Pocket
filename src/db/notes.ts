@@ -2,11 +2,18 @@ import { Note } from "@/src/models/Note";
 import { db } from "./index";
 
 // Insert
-export const createNote = async (date: string, content: string) => {
+export const createNote = async (
+  date: string,
+  content: string,
+  activities: string,
+  score: number
+) => {
   await db.runAsync(
-    "INSERT INTO daily_notes (date, content) VALUES (?, ?)",
+    "INSERT INTO daily_notes (date, content, activities, score) VALUES (?, ?, ? , ?)",
     date,
-    content
+    content,
+    activities,
+    score
   );
 };
 
@@ -25,15 +32,15 @@ export const getAllNotes = async (): Promise<Note[]> => {
 };
 
 // Update note
-export const updateNote = async (id: number, content: string) => {
+export const updateNote = async (date: number, content: string) => {
   await db.runAsync(
-    "UPDATE daily_notes SET content = ? WHERE id = ?",
+    "UPDATE daily_notes SET content = ? WHERE date = ?",
     content,
-    id
+    date
   );
 };
 
 // Delete note
-export const deleteNote = async (id: number) => {
-  await db.runAsync("DELETE FROM daily_notes WHERE id = ?", id);
+export const deleteNote = async (date: string) => {
+  await db.runAsync("DELETE FROM daily_notes WHERE date = ?", date);
 };

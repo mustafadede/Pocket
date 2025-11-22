@@ -8,7 +8,9 @@ export const initializeDatabase = async () => {
     CREATE TABLE IF NOT EXISTS daily_notes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       date TEXT NOT NULL,
-      content TEXT
+      content TEXT,
+      activities TEXT,
+      score INTEGER
     );
   `);
 };

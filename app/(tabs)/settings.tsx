@@ -1,6 +1,7 @@
 import { FontAwesome5, Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
+  Appearance,
   StyleSheet,
   Switch,
   Text,
@@ -11,7 +12,6 @@ import {
 
 export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
   const colorScheme = useColorScheme();
 
   const styles = StyleSheet.create({
@@ -82,9 +82,12 @@ export default function SettingsScreen() {
             <Text style={styles.label}>Karanlık Mod</Text>
           </View>
           <Switch
-            value={darkMode}
-            onValueChange={setDarkMode}
-            thumbColor={darkMode ? "#ff6e00" : "#ccc"}
+            value={colorScheme === "dark"}
+            onValueChange={() => {
+              const newTheme = colorScheme === "dark" ? "light" : "dark";
+              Appearance.setColorScheme(newTheme);
+            }}
+            thumbColor={colorScheme === "dark" ? "#ff6e00" : "#ccc"}
             trackColor={{ true: "#ffd7b3", false: "#ccc" }}
           />
         </View>

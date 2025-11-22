@@ -59,7 +59,6 @@ export default function HomeScreen() {
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
   const colorScheme = useColorScheme();
-  const date = new Date().toLocaleDateString();
   const router = useRouter();
 
   return (
@@ -90,6 +89,7 @@ export default function HomeScreen() {
           }}
         >
           <Calendar
+            key={colorScheme}
             style={{
               borderRadius: 16,
             }}
@@ -190,7 +190,7 @@ export default function HomeScreen() {
                   fontWeight: "600",
                 }}
               >
-                {today === selectedDate ? `Düzenle` : "Görüntüle"}
+                {today === selectedDate ? `Yazı gir` : "Görüntüle"}
               </Text>
             </TouchableOpacity>
           </Animated.View>

@@ -20,6 +20,7 @@ const Createday = () => {
   const navigation = useNavigation();
   const [tasks, setTasks] = useState<string[]>([]);
   const [input, setInput] = useState("");
+  const [score, setScore] = useState(0);
   const [ratingStep, setRatingStep] = useState(false);
 
   const [activities, setActivities] = useState([
@@ -31,10 +32,12 @@ const Createday = () => {
   const today = new Date().toISOString().split("T")[0];
 
   useEffect(() => {
-    console.log(today);
-
     getNoteByDate(today).then((data) => {
-      if (data) setInput(data.content);
+      if (data) {
+        setInput(data.content);
+        const savedActivities = data.activities && JSON.parse(data?.activities);
+        setActivities(savedActivities);
+      }
       console.log(data);
     });
   }, []);
@@ -50,8 +53,9 @@ const Createday = () => {
   const addTask = () => {
     if (input.trim().length === 0) return;
     setTasks([...tasks, input]);
-    setRatingStep(true);
-    createNote(today, input);
+    createNote(today, input, JSON.stringify(activities), score).then(() => {
+      navigation.goBack();
+    });
   };
 
   return (
@@ -244,9 +248,9 @@ const Createday = () => {
       </KeyboardAvoidingView>
       {!ratingStep ? (
         <TouchableOpacity
-          onPress={addTask}
+          onPress={() => setRatingStep(true)}
           style={{
-            backgroundColor: "#ff6e00",
+            backgroundColor: input.length > 0 ? "red" : "#ff6e00",
             paddingVertical: 12,
             borderRadius: 12,
             marginBottom: 20,
@@ -260,7 +264,7 @@ const Createday = () => {
               color: "#FFFFFF",
             }}
           >
-            Gününü gir
+            {input.length > 0 ? "Düzenle" : "Güne Puan Ver"}
           </Text>
         </TouchableOpacity>
       ) : (
@@ -302,7 +306,10 @@ const Createday = () => {
             {[1, 2, 3, 4, 5].map((num) => (
               <TouchableOpacity
                 key={num}
-                onPress={() => navigation.goBack()}
+                onPress={() => {
+                  setScore(num);
+                  addTask();
+                }}
                 style={{
                   backgroundColor: "#ff6e00",
                   padding: 12,
