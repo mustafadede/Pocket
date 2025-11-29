@@ -2,6 +2,8 @@ import { createNote, getNoteByDate } from "@/src/db/notes";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Octicons from "@expo/vector-icons/Octicons";
 import { useNavigation } from "@react-navigation/native";
+import { useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -22,6 +24,7 @@ const Createday = () => {
   const [input, setInput] = useState("");
   const [score, setScore] = useState(0);
   const [ratingStep, setRatingStep] = useState(false);
+  const router = useRouter();
 
   const [activities, setActivities] = useState([
     { label: "Yürüyüş", done: false },
@@ -37,8 +40,8 @@ const Createday = () => {
         setInput(data.content);
         const savedActivities = data.activities && JSON.parse(data?.activities);
         setActivities(savedActivities);
+        setScore(data.score);
       }
-      console.log(data);
     });
   }, []);
 
@@ -50,12 +53,15 @@ const Createday = () => {
     );
   };
 
-  const addTask = () => {
+  const addTask = (selectedScore: number) => {
     if (input.trim().length === 0) return;
     setTasks([...tasks, input]);
-    createNote(today, input, JSON.stringify(activities), score).then(() => {
-      navigation.goBack();
-    });
+
+    createNote(today, input, JSON.stringify(activities), selectedScore).then(
+      () => {
+        navigation.goBack();
+      }
+    );
   };
 
   return (
@@ -67,6 +73,7 @@ const Createday = () => {
         marginTop: Platform.OS === "ios" ? 20 : 0,
       }}
     >
+      <StatusBar translucent />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         keyboardVerticalOffset={100}
@@ -135,7 +142,7 @@ const Createday = () => {
           {!ratingStep && (
             <TouchableOpacity
               onPress={() => {
-                console.log("aktiviteler");
+                router.push("/activities");
               }}
             >
               <Octicons name="pencil" size={18} color="#ff6e00" />
@@ -250,7 +257,7 @@ const Createday = () => {
         <TouchableOpacity
           onPress={() => setRatingStep(true)}
           style={{
-            backgroundColor: input.length > 0 ? "red" : "#ff6e00",
+            backgroundColor: score ? "red" : "#ff6e00",
             paddingVertical: 12,
             borderRadius: 12,
             marginBottom: 20,
@@ -264,7 +271,7 @@ const Createday = () => {
               color: "#FFFFFF",
             }}
           >
-            {input.length > 0 ? "Düzenle" : "Güne Puan Ver"}
+            {score ? "Düzenle" : "Güne Puan Ver"}
           </Text>
         </TouchableOpacity>
       ) : (
@@ -307,8 +314,7 @@ const Createday = () => {
               <TouchableOpacity
                 key={num}
                 onPress={() => {
-                  setScore(num);
-                  addTask();
+                  addTask(num);
                 }}
                 style={{
                   backgroundColor: "#ff6e00",

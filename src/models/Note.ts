@@ -5,3 +5,14 @@ export interface Note {
   activities?: string;
   score: number;
 }
+
+export type Activities = {
+  label: string;
+  done?: boolean;
+};
+
+type PieChartData = {
+  value: number;
+  color: string;
+  label?: string;
+};

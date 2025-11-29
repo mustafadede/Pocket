@@ -1,16 +1,13 @@
+import { getAllNotes } from "@/src/db/notes";
 import { dateFormatter } from "@/utils/dateFormatter";
 import { SimpleLineIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
-import {
-  SafeAreaView,
-  Text,
-  TouchableOpacity,
-  useColorScheme,
-  View,
-} from "react-native";
+import { StatusBar } from "expo-status-bar";
+import { useEffect, useState } from "react";
+import { Text, TouchableOpacity, useColorScheme, View } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 LocaleConfig.locales["tr"] = {
   monthNames: [
@@ -58,8 +55,17 @@ LocaleConfig.defaultLocale = "tr";
 export default function HomeScreen() {
   const today = new Date().toISOString().split("T")[0];
   const [selectedDate, setSelectedDate] = useState(today);
+  const [notes, setNotes] = useState<{ [key: string]: boolean }>({});
   const colorScheme = useColorScheme();
   const router = useRouter();
+
+  useEffect(() => {
+    getAllNotes().then((notes) => {
+      notes.forEach((note) => {
+        setNotes((prev) => ({ ...prev, [note.date]: true }));
+      });
+    });
+  }, []);
 
   return (
     <SafeAreaView
@@ -68,10 +74,11 @@ export default function HomeScreen() {
         backgroundColor: "transparent",
       }}
     >
+      <StatusBar translucent />
       <View
         style={{
           paddingHorizontal: 20,
-          paddingTop: 10,
+          paddingTop: 0,
         }}
       >
         {/* Calendar */}
@@ -80,7 +87,9 @@ export default function HomeScreen() {
           style={{
             backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
             borderRadius: 16,
-            padding: 10,
+            paddingHorizontal: 10,
+            paddingBottom: 10,
+            paddingTop: 0,
             shadowColor: "#000",
             shadowOpacity: 0.08,
             shadowOffset: { width: 0, height: 2 },
@@ -94,10 +103,21 @@ export default function HomeScreen() {
               borderRadius: 16,
             }}
             markedDates={{
+              ...Object.fromEntries(
+                Object.entries(notes).map(([date, exists]) => [
+                  date,
+                  {
+                    marked: exists,
+                    dotColor: "#ff6e00",
+                  },
+                ])
+              ),
               [selectedDate]: {
                 selected: true,
                 disableTouchEvent: true,
                 selectedColor: "#ff6e00",
+                marked: notes[selectedDate],
+                dotColor: "#ff6e00",
               },
             }}
             enableSwipeMonths
@@ -136,7 +156,7 @@ export default function HomeScreen() {
             exiting={FadeOut.duration(300)}
             layout={Layout}
             style={{
-              marginTop: 15,
+              marginTop: 20,
               padding: 20,
               backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
               borderRadius: 16,

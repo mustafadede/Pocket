@@ -48,7 +48,6 @@ export default function TabsLayout() {
         options={{
           drawerLabel: "Ana Sayfa",
           title: "",
-
           headerTitle: () => (
             <Image
               source={require("@/assets/images/pocket-logo.png")}
@@ -58,7 +57,7 @@ export default function TabsLayout() {
         }}
       />
       <Drawer.Screen
-        name="settings"
+        name="(settings)/index"
         options={{
           title: "",
           drawerLabel: "Ayarlar",

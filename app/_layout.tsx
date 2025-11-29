@@ -43,6 +43,15 @@ export default function RootLayout() {
               headerBackTitle: "Geri dön",
             }}
           />
+          <Stack.Screen
+            name="activities"
+            options={{
+              title: "Aktiviteler",
+              animationMatchesGesture: true,
+              animation: "slide_from_right",
+              headerBackTitle: "Geri dön",
+            }}
+          />
         </Stack>
       </ThemeProvider>
     </KeyboardProvider>

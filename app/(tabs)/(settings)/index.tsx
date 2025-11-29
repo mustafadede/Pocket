@@ -1,4 +1,5 @@
-import { FontAwesome5, Ionicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "expo-router";
 import { useState } from "react";
 import {
   Appearance,
@@ -13,7 +14,7 @@ import {
 export default function SettingsScreen() {
   const [notifications, setNotifications] = useState(true);
   const colorScheme = useColorScheme();
-
+  const navigate = useNavigation();
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -113,17 +114,17 @@ export default function SettingsScreen() {
         </TouchableOpacity>
       </View> */}
 
-      <Text style={styles.sectionTitle}>Sayfalar</Text>
+      {/* <Text style={styles.sectionTitle}>Sayfalar</Text>
 
       <View style={styles.card}>
-        <TouchableOpacity style={styles.row}>
+        <TouchableOpacity onPress={() => navigate("/activites", {})} style={styles.row}>
           <View style={styles.left}>
             <FontAwesome5 name="running" size={22} color="#ff6e00" />
             <Text style={styles.label}>Aktiviteler</Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color="#999" />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <Text style={styles.sectionTitle}>Diğer</Text>
 
