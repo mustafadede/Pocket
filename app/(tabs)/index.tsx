@@ -136,9 +136,17 @@ export default function HomeScreen() {
             renderArrow={(direction) => (
               <View>
                 {direction === "left" ? (
-                  <SimpleLineIcons name="arrow-left" size={14} color="white" />
+                  <SimpleLineIcons
+                    name="arrow-left"
+                    size={14}
+                    color={colorScheme === "dark" ? "white" : "black"}
+                  />
                 ) : (
-                  <SimpleLineIcons name="arrow-right" size={14} color="white" />
+                  <SimpleLineIcons
+                    name="arrow-right"
+                    size={14}
+                    color={colorScheme === "dark" ? "white" : "black"}
+                  />
                 )}
               </View>
             )}

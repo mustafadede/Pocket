@@ -35,7 +35,8 @@ export default function TabsLayout() {
                   marginBottom: 20,
                   backgroundColor: "transparent",
                 }}
-                imageStyle={{ opacity: 1, resizeMode: "contain" }}
+                contentFit="contain"
+                imageStyle={{ opacity: 1 }}
               />
               <DrawerItemList {...props} />
             </DrawerContentScrollView>
@@ -51,7 +52,7 @@ export default function TabsLayout() {
           headerTitle: () => (
             <Image
               source={require("@/assets/images/pocket-logo.png")}
-              style={{ width: 120, height: 40, resizeMode: "contain" }}
+              style={{ width: 120, height: 40 }}
             />
           ),
         }}
