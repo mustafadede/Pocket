@@ -4,15 +4,15 @@ import { dateFormatter } from "@/utils/dateFormatter";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useLocalSearchParams, useNavigation } from "expo-router";
-import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useState } from "react";
-import { Text, useColorScheme, View } from "react-native";
+import { Animated, Text, useColorScheme, View } from "react-native";
 
 const viewday = () => {
   const { id } = useLocalSearchParams();
   const [note, setNote] = useState<{
     content: string;
     activities?: Activities[];
+    score?: number;
   } | null>(null);
   const colorScheme = useColorScheme();
   const navigation = useNavigation();
@@ -29,17 +29,56 @@ const viewday = () => {
           ? {
               content: note.content,
               activities: note.activities ? JSON.parse(note.activities) : [],
+              score: note.score,
             }
           : null
       );
     });
   }, []);
 
+  const EmojiMoodScore = ({ score }: { score: number }) => {
+    const fade = React.useRef(new Animated.Value(0)).current;
+    const mood =
+      score >= 4 ? "🔥" : score >= 3 ? "🙂" : score >= 2 ? "😐" : "😞";
+
+    React.useEffect(() => {
+      Animated.timing(fade, {
+        toValue: 1,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+    }, []);
+
+    return (
+      <Animated.View
+        style={{
+          opacity: fade,
+          alignSelf: "center",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <Text style={{ fontSize: 50, marginBottom: 4 }}>{mood}</Text>
+        <Text
+          style={{
+            fontSize: 28,
+            fontWeight: "700",
+            color: score >= 4 ? "#22c55e" : score >= 3 ? "#f59e0b" : "#ef4444",
+          }}
+        >
+          {score}
+        </Text>
+      </Animated.View>
+    );
+  };
+
   return (
     <View style={{ flex: 1, padding: 10, marginTop: 10 }}>
-      <StatusBar translucent />
       {note && note.content.length > 0 ? (
         <View>
+          {note.score !== undefined && note.score !== null && (
+            <EmojiMoodScore score={note.score} />
+          )}
           <Text
             style={{
               color: colorScheme === "dark" ? "white" : "black",

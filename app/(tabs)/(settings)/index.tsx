@@ -12,7 +12,7 @@ import {
 } from "react-native";
 
 export default function SettingsScreen() {
-  const [notifications, setNotifications] = useState(true);
+  const [notifications, setNotifications] = useState(false);
   const colorScheme = useColorScheme();
   const navigate = useNavigation();
   const styles = StyleSheet.create({

@@ -52,7 +52,7 @@ export default function TabsLayout() {
           headerTitle: () => (
             <Image
               source={require("@/assets/images/pocket-logo.png")}
-              style={{ width: 120, height: 40 }}
+              style={{ width: 120, height: 40, resizeMode: "contain" }}
             />
           ),
         }}
