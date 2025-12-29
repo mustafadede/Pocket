@@ -16,3 +16,7 @@ type PieChartData = {
   color: string;
   label?: string;
 };
+
+export type ActivitiesResponse = {
+  activities: string | { label: string; done: boolean }[];
+};

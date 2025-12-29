@@ -44,3 +44,9 @@ export const updateNote = async (date: number, content: string) => {
 export const deleteNote = async (date: string) => {
   await db.runAsync("DELETE FROM daily_notes WHERE date = ?", date);
 };
+
+// Get all activities
+export const getAllActivities = async () => {
+  const result = await db.getFirstAsync("SELECT activities FROM daily_notes");
+  return result ?? null;
+};
