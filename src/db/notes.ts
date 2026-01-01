@@ -1,18 +1,16 @@
-import { Note } from "@/src/models/Note";
+import { Activities, Note } from "@/src/models/Note";
 import { db } from "./index";
 
 // Insert
 export const createNote = async (
   date: string,
   content: string,
-  activities: string,
   score: number
 ) => {
   await db.runAsync(
-    "INSERT INTO daily_notes (date, content, activities, score) VALUES (?, ?, ? , ?)",
+    "INSERT INTO daily_notes (date, content, score) VALUES (?, ?, ? , ?)",
     date,
     content,
-    activities,
     score
   );
 };
@@ -46,7 +44,83 @@ export const deleteNote = async (date: string) => {
 };
 
 // Get all activities
-export const getAllActivities = async () => {
-  const result = await db.getFirstAsync("SELECT activities FROM daily_notes");
-  return result ?? null;
+export const getActivitiesByNoteDate = async (noteDate: string) => {
+  return await db.getAllAsync<Activities>(
+    "SELECT * FROM activities WHERE note_date = ?",
+    noteDate
+  );
+};
+
+// Create activity
+export const createActivity = async (noteDate: string, label: string) => {
+  await db.runAsync(
+    "INSERT INTO activities (note_date, label) VALUES (?, ?)",
+    noteDate,
+    label
+  );
+};
+
+// Update selected activitiy
+export const updateActivity = async (
+  id: number,
+  label: string,
+  done: boolean
+) => {
+  await db.runAsync(
+    "UPDATE activities SET label = ?, done = ? WHERE id = ?",
+    label,
+    done ? 1 : 0,
+    id
+  );
+};
+
+// Update all activities
+export const updateAllActivities = async (
+  activities: Activities[]
+): Promise<boolean> => {
+  await db.execAsync("BEGIN TRANSACTION");
+
+  try {
+    for (const activity of activities) {
+      // Label boşsa sil
+      if (activity.label.trim().length === 0) {
+        // Sadece DB'de varsa sil
+        if (activity.id > 0) {
+          await db.runAsync("DELETE FROM activities WHERE id = ?", activity.id);
+        }
+        continue;
+      }
+
+      // DB'de var → UPDATE
+      if (activity.id > 0) {
+        await db.runAsync(
+          "UPDATE activities SET label = ?, done = ? WHERE id = ?",
+          activity.label,
+          activity.done ? 1 : 0,
+          activity.id
+        );
+      }
+      // DB'de yok → INSERT
+      else {
+        await db.runAsync(
+          "INSERT INTO activities (note_date, label, done) VALUES (?, ?, ?)",
+          activity.note_date,
+          activity.label,
+          activity.done ? 1 : 0
+        );
+      }
+    }
+
+    await db.execAsync("COMMIT");
+    return true;
+  } catch (e) {
+    console.log("updateAllActivities error:", e);
+    await db.execAsync("ROLLBACK");
+    return false;
+  }
+};
+
+//Delete selected activity
+export const deleteActivity = async (id: number) => {
+  await db.runAsync("DELETE FROM activities WHERE id = ?", id);
 };

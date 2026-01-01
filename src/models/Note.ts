@@ -7,8 +7,10 @@ export interface Note {
 }
 
 export type Activities = {
+  id: number;
+  note_date: string;
   label: string;
-  done?: boolean;
+  done: boolean;
 };
 
 type PieChartData = {

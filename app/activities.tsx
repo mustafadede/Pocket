@@ -1,47 +1,110 @@
-import { getAllActivities } from "@/src/db/notes";
-import { Activities, ActivitiesResponse } from "@/src/models/Note";
-import { FontAwesome5 } from "@expo/vector-icons";
-import React, { useEffect, useState } from "react";
-import { Pressable, Text, TextInput, useColorScheme, View } from "react-native";
+import ActivityRow from "@/components/activities/ActivityRow";
+import {
+  deleteActivity as deleteActivityDB,
+  getActivitiesByNoteDate,
+  updateAllActivities,
+} from "@/src/db/notes";
+import { Activities } from "@/src/models/Note";
+import { Feather } from "@expo/vector-icons";
+import { useNavigation, useRouter } from "expo-router";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
 
 const activities = () => {
   const colorScheme = useColorScheme();
-  const [allActivities, setAllActivities] = useState<Activities[]>([]);
+  const [activities, setActivities] = useState<Activities[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [clicked, setClicked] = useState(false);
+  const router = useRouter();
+  const noteDate = new Date().toISOString().split("T")[0];
+  const navigation = useNavigation();
+
+  const addActivity = async () => {
+    if (clicked) return;
+
+    const tempId = 0;
+    setActivities((prev) => [
+      ...prev,
+      { id: tempId, note_date: noteDate, label: "", done: false },
+    ]);
+    setClicked(true);
+  };
+
+  const removeActivity = async (id: number) => {
+    const previous = activities;
+
+    setActivities((prev) => prev.filter((a) => a.id !== id));
+
+    try {
+      await deleteActivityDB(id);
+    } catch (e) {
+      setActivities(previous);
+    } finally {
+      setClicked(false);
+    }
+  };
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable
+          onPress={addActivity}
+          disabled={clicked}
+          hitSlop={10}
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: Platform.OS === "ios" ? 4 : 8,
+          }}
+        >
+          <Feather
+            name="plus"
+            size={Platform.OS === "ios" ? 26 : 22}
+            color={colorScheme === "dark" ? "#FFFFFF" : "#000000"}
+          />
+        </Pressable>
+      ),
+    });
+  }, [navigation, addActivity, clicked, colorScheme]);
+
   useEffect(() => {
-    getAllActivities().then((res) => {
-      if (!res) {
-        setAllActivities([]);
-        return;
-      }
+    getActivitiesByNoteDate(noteDate).then((res) => {
+      setActivities(res ?? []);
+    });
+  }, [noteDate]);
 
-      const typedRes = res as ActivitiesResponse;
+  const updateActivity = useCallback(
+    (activity: Activities, newLabel: string) => {
+      setActivities((prev) =>
+        prev.map((a) => (a.id === activity.id ? { ...a, label: newLabel } : a))
+      );
+    },
+    []
+  );
 
-      if (typeof typedRes.activities === "string") {
-        try {
-          const parsed = JSON.parse(typedRes.activities);
-          setAllActivities(Array.isArray(parsed) ? parsed : []);
-        } catch (e) {
-          console.error("Activities parse edilemedi", e);
-          setAllActivities([]);
-        }
+  const updateActivities = async () => {
+    setLoading(true);
+
+    await updateAllActivities(activities).then((res) => {
+      if (res) {
+        router.back();
+        setLoading(false);
       } else {
-        setAllActivities(typedRes.activities);
+        setLoading(true);
       }
     });
-  }, []);
-
-  const updateActivity = (index: number, newLabel: string) => {
-    setAllActivities((prev) =>
-      prev.map((item, i) => (i === index ? { ...item, label: newLabel } : item))
-    );
-  };
-
-  const addActivity = () => {
-    setAllActivities((prev) => [...prev, { label: "", done: false }]);
-  };
-
-  const removeActivity = (index: number) => {
-    setAllActivities((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -63,46 +126,16 @@ const activities = () => {
       >
         Burada aktivitelerini güncelleyebilir, ekleyebilir veya silebilirsin
       </Text>
-      {allActivities.map((activity, index) => (
-        <View
-          key={index}
-          style={{
-            marginBottom: 12,
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 10,
-          }}
-        >
-          <TextInput
-            value={activity.label}
-            onChangeText={(text) => updateActivity(index, text)}
-            style={{
-              backgroundColor: colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
-              height: 48,
-              color: colorScheme === "dark" ? "white" : "black",
-              flex: 1,
-              borderRadius: 12,
-              paddingHorizontal: 24,
-            }}
-          />
-          <Pressable
-            onPress={() => removeActivity(index)}
-            style={{
-              paddingHorizontal: 12,
-              borderRadius: 8,
-              alignItems: "center",
-              justifyContent: "center",
-              height: 48,
-              backgroundColor: "#FF3B30",
-            }}
-          >
-            <FontAwesome5 name="trash" size={18} color={"white"} />
-          </Pressable>
-        </View>
+      {activities.map((activity) => (
+        <ActivityRow
+          key={activity.id}
+          activity={activity}
+          colorScheme={colorScheme}
+          onChangeText={updateActivity}
+          onDelete={removeActivity}
+        />
       ))}
       <Pressable
-        onPress={addActivity}
         style={{
           marginTop: 8,
           paddingVertical: 12,
@@ -110,9 +143,14 @@ const activities = () => {
           backgroundColor: "#ff6e00",
           alignItems: "center",
         }}
+        onPress={updateActivities}
       >
         <Text style={{ color: "#FFFFFF", fontSize: 16, fontWeight: "600" }}>
-          Yeni aktivite ekle
+          {loading ? (
+            <ActivityIndicator color={"white"} />
+          ) : (
+            "Aktiviteleri güncelle"
+          )}
         </Text>
       </Pressable>
     </View>

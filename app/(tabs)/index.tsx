@@ -76,6 +76,7 @@ export default function HomeScreen() {
     <ScrollView
       style={{
         paddingHorizontal: 20,
+        paddingTop: 14,
       }}
     >
       <StatCard
