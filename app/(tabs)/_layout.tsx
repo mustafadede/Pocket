@@ -1,12 +1,16 @@
+import CustomText from "@/components/ui/CustomText";
 import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
+import * as Application from "expo-application";
 import { ImageBackground } from "expo-image";
 import { Drawer } from "expo-router/drawer";
 import { Image, View } from "react-native";
-
 export default function TabsLayout() {
+  const version = Application.nativeApplicationVersion;
+  const build = Application.nativeBuildVersion;
+
   return (
     <Drawer
       screenOptions={{
@@ -40,6 +44,28 @@ export default function TabsLayout() {
               />
               <DrawerItemList {...props} />
             </DrawerContentScrollView>
+            <View
+              style={{
+                paddingVertical: 16,
+                alignItems: "center",
+                marginBottom: 10,
+              }}
+            >
+              <CustomText
+                style={{ fontSize: 12, color: "#999", marginBottom: 4 }}
+              >
+                v{version} ({build})
+              </CustomText>
+              <CustomText
+                style={{
+                  fontSize: 12,
+                  color: "#999",
+                  textAlign: "center",
+                }}
+              >
+                © 2026 Pocket
+              </CustomText>
+            </View>
           </View>
         );
       }}

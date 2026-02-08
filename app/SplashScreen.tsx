@@ -74,6 +74,7 @@ const SplashScreen = () => {
               color: "#ff7a00",
               opacity: 0,
               marginBottom: 10,
+              fontFamily: "Inter-Regular",
             },
             animatedTextStyle,
           ]}

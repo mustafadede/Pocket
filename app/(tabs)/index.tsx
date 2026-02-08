@@ -1,18 +1,20 @@
 import StatCard from "@/components/home/StatCard";
+import CustomText from "@/components/ui/CustomText";
 import { getAllNotes } from "@/src/db/notes";
 import { dateFormatter } from "@/utils/dateFormatter";
 import { SimpleLineIcons } from "@expo/vector-icons";
+import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   ScrollView,
-  Text,
   TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import Animated, { FadeIn, FadeOut, Layout } from "react-native-reanimated";
+import { toast } from "sonner-native";
 
 LocaleConfig.locales["tr"] = {
   monthNames: [
@@ -70,6 +72,15 @@ export default function HomeScreen() {
         setNotes((prev) => ({ ...prev, [note.date]: true }));
       });
     });
+
+    const configureNotificationsAsync = async () => {
+      const response = await Notifications.requestPermissionsAsync();
+      if (response.granted) {
+        toast("Bildirimlerini ayarlar sekmesinden değiştirebilirsin");
+      }
+    };
+
+    configureNotificationsAsync();
   }, []);
 
   return (
@@ -104,6 +115,7 @@ export default function HomeScreen() {
           style={{
             borderRadius: 16,
           }}
+          maxDate={today}
           markedDates={{
             ...Object.fromEntries(
               Object.entries(notes).map(([date, exists]) => [
@@ -112,7 +124,7 @@ export default function HomeScreen() {
                   marked: exists,
                   dotColor: "#ff6e00",
                 },
-              ])
+              ]),
             ),
             [selectedDate]: {
               selected: true,
@@ -177,7 +189,7 @@ export default function HomeScreen() {
             elevation: 3,
           }}
         >
-          <Text
+          <CustomText
             style={{
               fontSize: 20,
               fontWeight: "600",
@@ -187,8 +199,8 @@ export default function HomeScreen() {
             }}
           >
             Seçilen Gün
-          </Text>
-          <Text
+          </CustomText>
+          <CustomText
             style={{
               fontSize: 18,
               textAlign: "center",
@@ -196,7 +208,7 @@ export default function HomeScreen() {
             }}
           >
             {dateFormatter(selectedDate)}
-          </Text>
+          </CustomText>
           <TouchableOpacity
             style={{
               marginTop: 20,
@@ -212,7 +224,7 @@ export default function HomeScreen() {
               }
             }}
           >
-            <Text
+            <CustomText
               style={{
                 textAlign: "center",
                 color: "#FFFFFF",
@@ -221,7 +233,7 @@ export default function HomeScreen() {
               }}
             >
               {today === selectedDate ? `Yazı gir` : "Görüntüle"}
-            </Text>
+            </CustomText>
           </TouchableOpacity>
         </Animated.View>
       )}

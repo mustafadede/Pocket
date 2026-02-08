@@ -1,5 +1,7 @@
+import CustomText from "@/components/ui/CustomText";
+import AntDesign from "@expo/vector-icons/AntDesign";
 import React from "react";
-import { Text } from "react-native";
+import { View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function StatCard({ title, value }: { title: string; value: number }) {
@@ -15,30 +17,54 @@ function StatCard({ title, value }: { title: string; value: number }) {
         shadowOffset: { width: 0, height: 2 },
         shadowRadius: 6,
         paddingHorizontal: 24,
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
         paddingVertical: 14,
         elevation: 4,
         backgroundColor: "#ff6e00",
       }}
     >
-      <Text
+      <View
         style={{
-          color: "white",
-          fontSize: 16,
-          fontWeight: "600",
-          marginBottom: 4,
+          display: "flex",
+          rowGap: 5,
         }}
       >
-        {title}
-      </Text>
-      <Text
+        <CustomText
+          style={{
+            color: "white",
+            fontSize: 16,
+            fontWeight: "600",
+            marginBottom: 4,
+          }}
+        >
+          {title}
+        </CustomText>
+        <CustomText
+          style={{
+            color: "white",
+            fontSize: 26,
+            fontWeight: "700",
+          }}
+        >
+          {value}
+        </CustomText>
+      </View>
+      <View
         style={{
-          color: "white",
-          fontSize: 26,
-          fontWeight: "700",
+          width: 72,
+          height: 72,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          borderRadius: "100%",
+          backgroundColor: "#ff8c33",
         }}
       >
-        {value}
-      </Text>
+        <AntDesign name="fire" size={48} color="white" />
+      </View>
     </Animated.View>
   );
 }

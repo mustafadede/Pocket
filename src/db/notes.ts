@@ -5,13 +5,13 @@ import { db } from "./index";
 export const createNote = async (
   date: string,
   content: string,
-  score: number
+  score: number,
 ) => {
   await db.runAsync(
-    "INSERT INTO daily_notes (date, content, score) VALUES (?, ?, ? , ?)",
+    "INSERT INTO daily_notes (date, content, score) VALUES (?, ?, ?)",
     date,
     content,
-    score
+    score,
   );
 };
 
@@ -19,7 +19,7 @@ export const createNote = async (
 export const getNoteByDate = async (date: string): Promise<Note | null> => {
   const result = await db.getFirstAsync<Note>(
     "SELECT * FROM daily_notes WHERE date = ?",
-    date
+    date,
   );
   return result ?? null;
 };
@@ -30,11 +30,11 @@ export const getAllNotes = async (): Promise<Note[]> => {
 };
 
 // Update note
-export const updateNote = async (date: number, content: string) => {
+export const updateNote = async (date: string, content: string) => {
   await db.runAsync(
     "UPDATE daily_notes SET content = ? WHERE date = ?",
     content,
-    date
+    date,
   );
 };
 
@@ -47,16 +47,21 @@ export const deleteNote = async (date: string) => {
 export const getActivitiesByNoteDate = async (noteDate: string) => {
   return await db.getAllAsync<Activities>(
     "SELECT * FROM activities WHERE note_date = ?",
-    noteDate
+    noteDate,
   );
 };
 
 // Create activity
-export const createActivity = async (noteDate: string, label: string) => {
+export const createActivity = async (
+  noteDate: string,
+  label: string,
+  icon?: string,
+) => {
   await db.runAsync(
-    "INSERT INTO activities (note_date, label) VALUES (?, ?)",
+    "INSERT INTO activities (note_date, label, icon) VALUES (?, ?, ?)",
     noteDate,
-    label
+    label,
+    icon || null,
   );
 };
 
@@ -64,19 +69,21 @@ export const createActivity = async (noteDate: string, label: string) => {
 export const updateActivity = async (
   id: number,
   label: string,
-  done: boolean
+  done: boolean,
+  icon?: string,
 ) => {
   await db.runAsync(
-    "UPDATE activities SET label = ?, done = ? WHERE id = ?",
+    "UPDATE activities SET label = ?, done = ?, icon = ? WHERE id = ?",
     label,
     done ? 1 : 0,
-    id
+    icon || null,
+    id,
   );
 };
 
 // Update all activities
 export const updateAllActivities = async (
-  activities: Activities[]
+  activities: Activities[],
 ): Promise<boolean> => {
   await db.execAsync("BEGIN TRANSACTION");
 
@@ -94,19 +101,21 @@ export const updateAllActivities = async (
       // DB'de var → UPDATE
       if (activity.id > 0) {
         await db.runAsync(
-          "UPDATE activities SET label = ?, done = ? WHERE id = ?",
+          "UPDATE activities SET label = ?, done = ?, icon = ? WHERE id = ?",
           activity.label,
           activity.done ? 1 : 0,
-          activity.id
+          activity.icon || null,
+          activity.id,
         );
       }
       // DB'de yok → INSERT
       else {
         await db.runAsync(
-          "INSERT INTO activities (note_date, label, done) VALUES (?, ?, ?)",
+          "INSERT INTO activities (note_date, label, done, icon) VALUES (?, ?, ?, ?)",
           activity.note_date,
           activity.label,
-          activity.done ? 1 : 0
+          activity.done ? 1 : 0,
+          activity.icon || null,
         );
       }
     }

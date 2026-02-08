@@ -1,3 +1,5 @@
+import { MaterialIconName } from "@/constants/activities";
+
 export interface Note {
   id: number;
   date: string;
@@ -11,6 +13,7 @@ export type Activities = {
   note_date: string;
   label: string;
   done: boolean;
+  icon?: MaterialIconName;
 };
 
 type PieChartData = {

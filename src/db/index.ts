@@ -17,7 +17,15 @@ export const initializeDatabase = async () => {
       note_date TEXT NOT NULL,
       label TEXT NOT NULL,
       done INTEGER DEFAULT 0,
+      icon TEXT,
       FOREIGN KEY (note_date) REFERENCES daily_notes(date) ON DELETE CASCADE
     );
   `);
+
+  // Add icon column if it doesn't exist
+  try {
+    await db.execAsync(`ALTER TABLE activities ADD COLUMN icon TEXT;`);
+  } catch (e) {
+    // Column might already exist, ignore error
+  }
 };

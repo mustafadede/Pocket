@@ -1,11 +1,12 @@
+import ActivityComponent from "@/components/ui/ActivityComponent";
+import CustomText from "@/components/ui/CustomText";
 import { getNoteByDate } from "@/src/db/notes";
 import { Activities } from "@/src/models/Note";
 import { dateFormatter } from "@/utils/dateFormatter";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Animated, Text, useColorScheme, View } from "react-native";
+import { Animated, useColorScheme, View } from "react-native";
 
 const viewday = () => {
   const { id } = useLocalSearchParams();
@@ -31,7 +32,7 @@ const viewday = () => {
               activities: note.activities ? JSON.parse(note.activities) : [],
               score: note.score,
             }
-          : null
+          : null,
       );
     });
   }, []);
@@ -56,19 +57,168 @@ const viewday = () => {
           alignSelf: "center",
           alignItems: "center",
           marginBottom: 20,
+          backgroundColor: colorScheme === "dark" ? "#1c1c1c" : "#c4c4c4",
+          width: "100%",
+          padding: 20,
+          borderRadius: 12,
         }}
       >
-        <Text style={{ fontSize: 50, marginBottom: 4 }}>{mood}</Text>
-        <Text
+        <CustomText style={{ fontSize: 50, marginBottom: 4 }}>
+          {mood}
+        </CustomText>
+        <View
           style={{
-            fontSize: 28,
-            fontWeight: "700",
-            color: score >= 4 ? "#22c55e" : score >= 3 ? "#f59e0b" : "#ef4444",
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
           }}
         >
-          {score}
-        </Text>
+          <CustomText
+            style={{
+              fontSize: 28,
+              fontWeight: "700",
+              color:
+                score >= 4 ? "#22c55e" : score >= 3 ? "#f59e0b" : "#ef4444",
+            }}
+          >
+            {score}
+          </CustomText>
+          <CustomText
+            style={{
+              fontWeight: "400",
+              color: "gray",
+              fontSize: 18,
+            }}
+          >
+            /5
+          </CustomText>
+        </View>
       </Animated.View>
+    );
+  };
+
+  const ProgressSummary = () => {
+    if (!note?.activities || note.activities.length === 0) return null;
+
+    const total = note.activities.length;
+    const done = note.activities.filter((a) => a.done).length;
+    const missed = total - done;
+    const ratio = total === 0 ? 0 : Math.round((done / total) * 100);
+
+    return (
+      <View
+        style={{
+          padding: 20,
+          borderRadius: 12,
+          backgroundColor: colorScheme === "dark" ? "#1c1c1c" : "#c4c4c4",
+          position: "relative",
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <MaterialIcons name="pie-chart" size={21} color="#ff6e00" />
+          <CustomText
+            style={{
+              fontSize: 21,
+              fontWeight: "600",
+              marginLeft: 6,
+              color: colorScheme === "dark" ? "gray" : "black",
+            }}
+          >
+            İlerleme
+          </CustomText>
+        </View>
+
+        <View style={{ justifyContent: "center", flexDirection: "row" }}>
+          <View
+            style={{
+              flexDirection: "column-reverse",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 10,
+              paddingTop: 20,
+            }}
+          >
+            <CustomText
+              style={{
+                color: colorScheme === "dark" ? "white" : "black",
+                marginRight: 10,
+                backgroundColor: colorScheme === "dark" ? "#1c1c1c" : "#c4c4c4",
+              }}
+            >
+              Tamamlanan
+            </CustomText>
+            <CustomText
+              style={{
+                fontWeight: 600,
+                fontSize: 24,
+                color: colorScheme === "dark" ? "white" : "black",
+              }}
+            >
+              {done}
+            </CustomText>
+          </View>
+          <View
+            style={{
+              flexDirection: "column-reverse",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 10,
+              paddingTop: 20,
+            }}
+          >
+            <CustomText
+              style={{
+                color: colorScheme === "dark" ? "white" : "black",
+                marginRight: 10,
+                backgroundColor: colorScheme === "dark" ? "#1c1c1c" : "#c4c4c4",
+              }}
+            >
+              YAPILMADI
+            </CustomText>
+            <CustomText
+              style={{
+                fontWeight: 600,
+                fontSize: 24,
+                color: colorScheme === "dark" ? "white" : "black",
+              }}
+            >
+              {missed}
+            </CustomText>
+          </View>
+          <CustomText
+            style={{
+              position: "absolute",
+              right: 0,
+              top: -24,
+              fontWeight: 700,
+              fontSize: 24,
+              color: colorScheme === "dark" ? "white" : "black",
+            }}
+          >
+            %{ratio}
+          </CustomText>
+        </View>
+
+        <View
+          style={{
+            width: "100%",
+            height: 10,
+            backgroundColor: colorScheme === "dark" ? "#444" : "#ddd",
+            borderRadius: 10,
+            marginTop: 8,
+          }}
+        >
+          <View
+            style={{
+              width: `${ratio}%`,
+              height: "100%",
+              backgroundColor: "#22c55e",
+              borderRadius: 10,
+            }}
+          />
+        </View>
+      </View>
     );
   };
 
@@ -79,144 +229,37 @@ const viewday = () => {
           {note.score !== undefined && note.score !== null && (
             <EmojiMoodScore score={note.score} />
           )}
-          <Text
+          <CustomText
             style={{
               color: colorScheme === "dark" ? "white" : "black",
               fontSize: 16,
               marginBottom: 20,
+              lineHeight: 24,
             }}
           >
             {note.content}
-          </Text>
-
+          </CustomText>
+          <ProgressSummary />
+          <CustomText
+            style={{
+              color: colorScheme === "dark" ? "white" : "black",
+              fontWeight: "700",
+              fontSize: 24,
+              marginVertical: 20,
+            }}
+          >
+            Aktiviteler
+          </CustomText>
           {note.activities && note.activities.length > 0 && (
-            <View style={{ marginTop: 20 }}>
-              <View style={{ marginBottom: 20 }}>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    fontWeight: "600",
-                    marginBottom: 6,
-                    color: colorScheme === "dark" ? "white" : "black",
-                    textAlign: "center",
-                  }}
-                >
-                  Bugünün Özeti
-                </Text>
-                {(() => {
-                  const total = note.activities!.length;
-                  const done = note.activities!.filter((a) => a.done).length;
-                  const missed = total - done;
-                  const ratio = Math.round((done / total) * 100);
-                  return (
-                    <>
-                      <View
-                        style={{
-                          justifyContent: "center",
-                          flexDirection: "row",
-                        }}
-                      >
-                        <Text
-                          style={{
-                            color: colorScheme === "dark" ? "white" : "black",
-                            marginRight: 10,
-                          }}
-                        >
-                          Yapılanlar: {done}
-                        </Text>
-                        <Text
-                          style={{
-                            color: colorScheme === "dark" ? "white" : "black",
-                            marginRight: 10,
-                          }}
-                        >
-                          Yapılmayanlar: {missed}
-                        </Text>
-                        <Text
-                          style={{
-                            color: colorScheme === "dark" ? "white" : "black",
-                          }}
-                        >
-                          Başarı Oranı: %{ratio}
-                        </Text>
-                      </View>
-                      {/* 2️⃣ Progress Bar */}
-                      <View
-                        style={{
-                          width: "100%",
-                          height: 10,
-                          backgroundColor:
-                            colorScheme === "dark" ? "#444" : "#ddd",
-                          borderRadius: 10,
-                          marginTop: 8,
-                        }}
-                      >
-                        <View
-                          style={{
-                            width: `${ratio}%`,
-                            height: "100%",
-                            backgroundColor: "#22c55e",
-                            borderRadius: 10,
-                          }}
-                        />
-                      </View>
-                    </>
-                  );
-                })()}
-              </View>
-
-              {/* 3️⃣ Aktiviteler Kartları */}
-              <View style={{ flexDirection: "column", gap: 10 }}>
-                {note.activities.map((item, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      padding: 14,
-                      backgroundColor:
-                        colorScheme === "dark" ? "#1f1f1f" : "#f4f4f5",
-                      borderRadius: 14,
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: colorScheme === "dark" ? "white" : "black",
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-                    <Text
-                      style={{
-                        color: item.done ? "#22c55e" : "#ef4444",
-                        fontWeight: "600",
-                        fontSize: 16,
-                      }}
-                    >
-                      {item.done ? (
-                        <MaterialIcons
-                          name="done"
-                          size={24}
-                          color={colorScheme === "dark" ? "#22c55e" : "green"}
-                        />
-                      ) : (
-                        <Ionicons
-                          name="close"
-                          size={24}
-                          color={colorScheme === "dark" ? "#ef4444" : "red"}
-                        />
-                      )}
-                    </Text>
-                  </View>
-                ))}
-              </View>
+            <View style={{ flexDirection: "column", gap: 10 }}>
+              {note.activities.map((item, index) => (
+                <ActivityComponent key={item.id} item={item} hasCheck={false} />
+              ))}
             </View>
           )}
         </View>
       ) : (
-        <Text
+        <CustomText
           style={{
             color: "gray",
             width: "100%",
@@ -226,8 +269,8 @@ const viewday = () => {
             fontStyle: "italic",
           }}
         >
-          Bu gün için henüz bir not eklenmemiş.
-        </Text>
+          Bu gün için bir not eklenmemiş.
+        </CustomText>
       )}
     </View>
   );

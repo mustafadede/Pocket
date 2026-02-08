@@ -4,22 +4,28 @@ import {
   DefaultTheme,
   ThemeProvider,
 } from "@react-navigation/native";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useState } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import { Toaster } from "sonner-native";
 import SplashScreen from "./SplashScreen";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [loading, setLoading] = useState(true);
+  const [fontsLoaded] = useFonts({
+    "Inter-Regular": require("../assets/fonts/Inter-VariableFont_opsz,wght.ttf"),
+    "Inter-Italic": require("../assets/fonts/Inter-Italic-VariableFont_opsz,wght.ttf"),
+  });
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 2000);
+    }, 3000);
     initializeDatabase();
   }, []);
 
@@ -30,7 +36,7 @@ export default function RootLayout() {
         backgroundColor: "transparent",
       }}
     >
-      <StatusBar style="auto" />
+      <StatusBar style="auto" translucent />
       <KeyboardProvider>
         <ThemeProvider
           value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
@@ -38,7 +44,11 @@ export default function RootLayout() {
           {loading ? (
             <SplashScreen />
           ) : (
-            <Stack>
+            <Stack
+              screenOptions={{
+                headerTintColor: "#ff6e00",
+              }}
+            >
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen
                 name="createday"
@@ -72,10 +82,20 @@ export default function RootLayout() {
                   headerBackTitle: "Geri dön",
                 }}
               />
+              <Stack.Screen
+                name="about"
+                options={{
+                  title: "Hakkında",
+                  animationMatchesGesture: true,
+                  animation: "slide_from_right",
+                  headerBackTitle: "Geri dön",
+                }}
+              />
             </Stack>
           )}
         </ThemeProvider>
       </KeyboardProvider>
+      <Toaster />
     </GestureHandlerRootView>
   );
 }

@@ -1,18 +1,21 @@
+import ActivityComponent from "@/components/ui/ActivityComponent";
+import CustomText from "@/components/ui/CustomText";
+import { MaterialIconName } from "@/constants/activities";
 import {
   createNote,
   getActivitiesByNoteDate,
   getNoteByDate,
   updateActivity,
+  updateNote,
 } from "@/src/db/notes";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import Octicons from "@expo/vector-icons/Octicons";
 import { useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  Text,
   TextInput,
   TouchableOpacity,
   useColorScheme,
@@ -21,6 +24,7 @@ import {
 import { ScrollView } from "react-native-gesture-handler";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { toast } from "sonner-native";
 
 const Createday = () => {
   const colorScheme = useColorScheme();
@@ -32,7 +36,7 @@ const Createday = () => {
   const router = useRouter();
 
   const [activities, setActivities] = useState<
-    { id: number; label: string; done: boolean }[]
+    { id: number; label: string; done: boolean; icon?: MaterialIconName }[]
   >([]);
 
   const today = new Date().toISOString().split("T")[0];
@@ -46,16 +50,27 @@ const Createday = () => {
     });
 
     getActivitiesByNoteDate(today).then((res) => {
-      setActivities(res ?? []);
+      if (!res) {
+        setActivities([]);
+        return;
+      }
+
+      const mapped = res.map((a) => ({
+        id: a.id,
+        label: a.label,
+        done: a.done,
+        icon: a.icon as MaterialIconName | undefined,
+      }));
+
+      setActivities(mapped);
     });
   });
 
   const toggleActivity = async (activityId: number) => {
     const previous = activities;
 
-    // optimistic UI
     setActivities((prev) =>
-      prev.map((a) => (a.id === activityId ? { ...a, done: !a.done } : a))
+      prev.map((a) => (a.id === activityId ? { ...a, done: !a.done } : a)),
     );
 
     const updated = activities.find((a) => a.id === activityId);
@@ -64,7 +79,6 @@ const Createday = () => {
     try {
       await updateActivity(activityId, updated.label, !updated.done);
     } catch (e) {
-      // rollback
       setActivities(previous);
     }
   };
@@ -78,19 +92,23 @@ const Createday = () => {
     });
   };
 
+  const updateTask = (date: string, content: string) => {
+    updateNote(date, content).then(() => {
+      navigation.goBack();
+      toast.success("Not güncellendi");
+    });
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
       <View style={{ flex: 1, paddingHorizontal: 20 }}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
           keyboardVerticalOffset={Platform.OS === "ios" ? 120 : 0}
-          style={{ flex: 1 }}
+          style={{ flex: 1, backgroundColor: "transprent" }}
         >
           <ScrollView
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{
-              paddingBottom: Platform.OS === "android" ? 120 : 40,
-            }}
             showsVerticalScrollIndicator={false}
           >
             <Animated.View
@@ -116,13 +134,14 @@ const Createday = () => {
                     colorScheme === "dark" ? "#777" : "#A5A5A5"
                   }
                   style={{
+                    fontFamily: "Inter-Regular",
                     fontSize: 16,
                     maxWidth: "100%",
                     color: colorScheme === "dark" ? "#FFFFFF" : "#1A1A1A",
                   }}
                 />
               ) : (
-                <Text
+                <CustomText
                   style={{
                     paddingTop: 10,
                     paddingLeft: 4,
@@ -132,7 +151,7 @@ const Createday = () => {
                   }}
                 >
                   {input}
-                </Text>
+                </CustomText>
               )}
             </Animated.View>
             <View
@@ -142,84 +161,58 @@ const Createday = () => {
                 alignItems: "center",
               }}
             >
-              <Text
+              <CustomText
                 style={{
+                  fontWeight: 700,
                   fontSize: 24,
                   color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
                 }}
               >
                 Aktiviteler
-              </Text>
-              {!ratingStep && (
+              </CustomText>
+              {!ratingStep ? (
                 <TouchableOpacity
                   onPress={() => {
                     router.push("/activities");
                   }}
                 >
-                  <Octicons name="pencil" size={18} color="#ff6e00" />
+                  <CustomText style={{ color: "#ff6e00" }}>Düzenle</CustomText>
                 </TouchableOpacity>
-              )}
+              ) : null}
             </View>
-            {!ratingStep && (
+            {activities.length === 0 ? (
+              <CustomText
+                style={{
+                  fontSize: 14,
+                  marginTop: 10,
+                  color: colorScheme === "dark" ? "#777" : "#A5A5A5",
+                  textAlign: "center",
+                }}
+              >
+                Henüz eklenmiş bir aktivite yok. Sağ üst kısımda bulunan butona
+                tıklayarak aktivitelerini ekleyebilirsin.
+              </CustomText>
+            ) : null}
+            {!ratingStep ? (
               <Animated.View
                 layout={Layout}
                 style={{
-                  marginTop: 20,
-                  backgroundColor:
-                    colorScheme === "dark" ? "#1A1A1A" : "#FFFFFF",
+                  marginVertical: 20,
                   borderRadius: 12,
-                  padding: 14,
                   gap: 12,
                 }}
               >
-                {activities.length === 0 && (
-                  <Text
-                    style={{
-                      fontSize: 14,
-                      color: colorScheme === "dark" ? "#777" : "#A5A5A5",
-                      textAlign: "center",
-                    }}
-                  >
-                    Henüz eklenmiş bir aktivite yok. Sağ üst kısımda bulunan
-                    butona tıklayarak aktivitelerini ekleyebilirsin.
-                  </Text>
-                )}
                 {activities.map((item) => (
-                  <TouchableOpacity
+                  <ActivityComponent
                     key={item.id}
-                    onPress={() => toggleActivity(item.id)}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      paddingVertical: 10,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 16,
-                        color: colorScheme === "dark" ? "#fff" : "#1A1A1A",
-                        textDecorationStyle: "dashed",
-                      }}
-                    >
-                      {item.label}
-                    </Text>
-
-                    <Animated.View
-                      style={{
-                        width: 22,
-                        height: 22,
-                        borderRadius: 6,
-                        borderWidth: 2,
-                        borderColor: "#ff6e00",
-                        backgroundColor: item.done ? "#ff6e00" : "transparent",
-                      }}
-                    />
-                  </TouchableOpacity>
+                    item={item}
+                    toggleActivity={() => toggleActivity(item.id)}
+                    hasCheck
+                  />
                 ))}
               </Animated.View>
-            )}
-            {ratingStep && (
+            ) : null}
+            {ratingStep ? (
               <View
                 style={{
                   width: "100%",
@@ -257,7 +250,7 @@ const Createday = () => {
                           : "#DDD",
                     }}
                   >
-                    <Text
+                    <CustomText
                       style={{
                         fontSize: 14,
                         fontWeight: "500",
@@ -271,33 +264,50 @@ const Createday = () => {
                       }}
                     >
                       {item.label}
-                    </Text>
+                    </CustomText>
                   </View>
                 ))}
               </View>
-            )}
+            ) : null}
           </ScrollView>
           {!ratingStep ? (
-            <TouchableOpacity
-              onPress={() => setRatingStep(true)}
-              style={{
-                backgroundColor: score ? "red" : "#ff6e00",
-                paddingVertical: 12,
-                borderRadius: 12,
-                marginBottom: 20,
-              }}
-            >
-              <Text
+            <View style={{ marginBottom: 10 }}>
+              <LinearGradient colors={["white", "black"]} style={{ flex: 1 }} />
+              <TouchableOpacity
+                onPress={() =>
+                  score ? updateTask(today, input) : setRatingStep(true)
+                }
                 style={{
-                  textAlign: "center",
-                  fontSize: 16,
-                  fontWeight: "600",
-                  color: "#FFFFFF",
+                  backgroundColor: score ? "red" : "#ff6e00",
+                  paddingVertical: 12,
+                  borderRadius: 12,
                 }}
               >
-                {score ? "Düzenle" : "Güne Puan Ver"}
-              </Text>
-            </TouchableOpacity>
+                {score ? (
+                  <CustomText
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: "#FFFFFF",
+                    }}
+                  >
+                    Düzenle
+                  </CustomText>
+                ) : (
+                  <CustomText
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: "600",
+                      color: "#FFFFFF",
+                    }}
+                  >
+                    Güne Puan Ver
+                  </CustomText>
+                )}
+              </TouchableOpacity>
+            </View>
           ) : (
             <Animated.View
               entering={FadeIn.duration(500)}
@@ -308,7 +318,6 @@ const Createday = () => {
                 borderRadius: 16,
                 padding: 16,
                 paddingTop: 30,
-                position: "relative",
               }}
             >
               <TouchableOpacity
@@ -323,7 +332,7 @@ const Createday = () => {
               >
                 <Ionicons name="close-outline" size={34} color="#ff6e00" />
               </TouchableOpacity>
-              <Text
+              <CustomText
                 style={{
                   fontSize: 18,
                   fontWeight: "600",
@@ -332,7 +341,7 @@ const Createday = () => {
                 }}
               >
                 Güne puanın nedir?
-              </Text>
+              </CustomText>
               <View style={{ flexDirection: "row", gap: 10, marginBottom: 20 }}>
                 {[1, 2, 3, 4, 5].map((num) => (
                   <TouchableOpacity
@@ -346,9 +355,9 @@ const Createday = () => {
                       borderRadius: 8,
                     }}
                   >
-                    <Text style={{ color: "#fff", fontWeight: "600" }}>
+                    <CustomText style={{ color: "#fff", fontWeight: "600" }}>
                       {num}
-                    </Text>
+                    </CustomText>
                   </TouchableOpacity>
                 ))}
               </View>

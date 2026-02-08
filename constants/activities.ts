@@ -1,0 +1,46 @@
+import { MaterialIcons } from "@expo/vector-icons";
+import { ComponentProps, useMemo } from "react";
+
+export type MaterialIconName = ComponentProps<typeof MaterialIcons>["name"];
+
+export const iconNames = useMemo<(keyof typeof MaterialIcons.glyphMap)[]>(
+  () => [
+    "star",
+    "favorite",
+    "check-circle",
+    "work",
+    "fitness-center",
+    "school",
+    "shopping-cart",
+    "home",
+    "restaurant",
+    "local-cafe",
+    "bed",
+    "flight",
+    "directions-car",
+    "pets",
+    "music-note",
+    "movie",
+    "book",
+    "code",
+    "event",
+    "alarm",
+    "today",
+    "attach-money",
+    "shopping-bag",
+    "sports-soccer",
+    "sports-basketball",
+    "emoji-people",
+    "lightbulb",
+    "spa",
+    "laptop",
+    "phone-iphone",
+    "map",
+    "park",
+    "celebration",
+    "self-improvement",
+    "nightlife",
+    "hiking",
+  ],
+  [],
+);
